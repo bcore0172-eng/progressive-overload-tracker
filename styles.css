@@ -1,0 +1,130 @@
+h1, h2, h3 {
+    font-family: 'Arial', sans-serif;
+    color: #f9fafb;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 600;
+}
+
+p {
+    color: #d1d5db;
+    line-height: 1.6;
+}
+
+body {
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                      url(https://i.pinimg.com/736x/cb/b2/6a/cbb26a4adf8da5ebcffcda13d432eb63.jpg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+    font-family: Arial, sans-serif;
+    color: #f9fafb;
+    text-align: center;
+
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* prevents vertical stretching */
+}
+
+label {
+    color: #f9fafb;
+    font-weight: 600;
+}
+
+.app {
+    background: rgba(31, 41, 51, 0.95);
+    padding: 28px;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    box-sizing: border-box;
+    margin: 20px auto;
+    overflow: hidden; /* prevents accidental overflow */
+}
+
+#progress-chart {
+    width: 100% !important;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10; /* makes height scale automatically */
+    max-height: 300px; /* prevent it from getting too tall on big screens */
+    display: block;
+    margin-top: 20px;
+}
+
+input, select {
+    background-color: #111827;
+    color: #f9fafb;
+    border: 1px solid #374151;
+    padding: 6px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 5px 0;
+}
+
+button {
+    margin-left: 6px;
+    background: #2563eb;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 6px 12px;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.pr-badge {
+    color: olivedrab;
+    font-weight: bold;
+    margin-left: 6px;
+    animation: pop 0.4s ease-out;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8); }
+    100% { transform: scale(1); }
+}
+
+/* Workouts list */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #1f2933;
+    color: #f9fafb;
+    margin: 8px auto;
+    padding: 10px;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    animation: pop 0.3s ease-in;
+}
+
+@media (max-width: 400px) {
+    .app {
+        padding: 20px;
+    }
+
+    #progress-chart {
+        aspect-ratio: 4 / 3; /* smaller aspect ratio for phones */
+        max-height: 250px;
+    }
+
+    li {
+        max-width: 100%;
+    }
+}
+

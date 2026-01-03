@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Progressive Overload Tracker</title>
+</head>
+<body>
+  <div class="app">
+    <h1>Progressive Overload Tracker</h1>
+    <p>Welcome! Track your workouts and monitor your progress with ease.</p>
+
+    <form id="exercise-form">
+      <label for="exercise-filter">Filter Workouts:</label>
+      <select id="exercise-filter">
+        <option value="">All</option>
+      </select>
+
+      <label for="sets">Sets:</label>
+      <input type="number" id="sets" name="sets" required>
+
+      <label for="exercise">Exercise:</label>
+      <input type="text" id="exercise" name="exercise" required>
+
+      <label for="weight">Weight (lbs):</label>
+      <input type="number" id="weight" name="weight" required>
+
+      <label for="reps">Repetitions:</label>
+      <input type="number" id="reps" name="reps" required>
+
+      <button type="submit">Add Workout</button>
+    </form>
+
+    <h2>Workouts History</h2>
+    <ul id="workout-history"></ul>
+
+    <h2>Progress Chart</h2>
+    <canvas id="progress-chart"></canvas>
+
+    <button id="export-btn">Export Workouts</button>
+    <input type="file" id="import-file" accept=".json">
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
