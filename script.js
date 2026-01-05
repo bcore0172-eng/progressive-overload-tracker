@@ -11,47 +11,68 @@ let workouts = JSON.parse(localStorage.getItem('workouts')) || []; // load saved
 let editIndex = null; // keeps track of which workout is being edited
 
 // ----------------------
+// Color mapping for exercises
+// ----------------------
+const exerciseColors = {}; // key: exercise name, value: color
+const colorsPalette = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#f97316', '#14b8a6'];
+
+function getExerciseColor(exercise) {
+    if (!exerciseColors[exercise]) {
+        const availableColors = colorsPalette.filter(c => !Object.values(exerciseColors).includes(c));
+        exerciseColors[exercise] = availableColors[0] || '#3b82f6';
+    }
+    return exerciseColors[exercise];
+}
+
+// ----------------------
 // Chart Rendering
 // ----------------------
 function updateChart() {
-    // Extract labels (dates) and data (weights) from workouts
-    const labels = workouts.map(w => w.date);
-    const data = workouts.map(w => w.weight);
-    const pointColors = workouts.map(w => w.isPR ? '#076028ff' : '#5fc2f8ff'); // PR points in green
+    // Extract unique exercises
+    const exercises = [...new Set(workouts.map(w => w.exercise))]; // unique exercises
+
+    // Create a dataset for each exercise
+    const datasets = exercises.map(exercise => {
+        const exerciseWorkouts = workouts.filter(w => w.exercise === exercise).sort((a,b)=> new Date(a.date) - new Date(b.date));
+        return {
+            label: exercise,
+            data: exerciseWorkouts.map(w => ({ x: w.date, y: w.weight })),
+            borderColor: getExerciseColor(exercise),
+            backgroundColor: 'rgba(0,0,0,0)',
+            tension: 0.3, // smooth line
+            pointRadius: 6,
+            pointBackgroundColor: exerciseWorkouts.map(w => w.isPR ? '#076028ff' : getExerciseColor(exercise)) // PR points in green
+        };
+    });
+
+    const labels = [...new Set(workouts.map(w => w.date))].sort(); // unique dates
 
     // Destroy previous chart instance if exists to avoid overlaying
     if (chart) chart.destroy();
 
-    // Create new chart
+    // Create new Chart.js instance
     chart = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Weight (lbs)',
-                data,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.2)',
-                tension: 0.3, // smooth line
-                pointRadius: 6,
-                pointBackgroundColor: pointColors
-            }]
-        },
+        data: { datasets },
         options: {
             responsive: true, // allows chart to resize
             maintainAspectRatio: false, // lets CSS aspect-ratio control height
+            parsing: { xAxisKey: 'x', yAxisKey: 'y' }, // for x/y objects
             plugins: {
                 tooltip: {
                     callbacks: {
                         label: (context) => {
-                            const w = workouts[context.dataIndex];
+                            const exName = context.dataset.label;
+                            const w = workouts.find(w => w.exercise === exName && w.date === context.parsed.x);
+                            if (!w) return '';
                             return w.isPR ? `${w.weight} lbs 🚀 PR` : `${w.weight} lbs`;
                         }
                     }
                 }
             },
-            scales: {
-                y: { beginAtZero: false } // start Y axis at minimum weight
+            scales: { 
+                y: { beginAtZero: false }, // start Y axis at minimum weight
+                x: { type: 'time', time: { unit: 'day' } } // show dates on X-axis
             }
         }
     });
@@ -131,7 +152,7 @@ form.addEventListener('submit', (e) => {
     const sets = parseInt(document.getElementById('sets').value);
     const reps = parseInt(document.getElementById('reps').value);
     const weight = parseFloat(document.getElementById('weight').value);
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString().split('T')[0]; // current date
 
     // Determine if this is a PR
     const maxWeight = workouts
