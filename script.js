@@ -7,7 +7,15 @@ const importFile = document.getElementById('import-file');
 const ctx = document.getElementById('progress-chart').getContext('2d');
 
 let chart; // Chart.js instance
-let workouts = JSON.parse(localStorage.getItem('workouts')) || []; // load saved workouts
+
+// ----------------------
+// Use sample workouts for testing chart
+// ----------------------
+let workouts = [
+    { date: "2026-01-05", exercise: "Bench Press", sets: 3, reps: 8, weight: 150, isPR: false },
+    { date: "2026-01-06", exercise: "Bench Press", sets: 3, reps: 8, weight: 155, isPR: true },
+    { date: "2026-01-05", exercise: "Squat", sets: 4, reps: 6, weight: 200, isPR: false }
+];
 let editIndex = null; // keeps track of which workout is being edited
 
 // ----------------------
@@ -28,51 +36,69 @@ function getExerciseColor(exercise) {
 // Chart Rendering
 // ----------------------
 function updateChart() {
-    // Extract unique exercises
+    // ----------------------
+    // Extract unique exercises from all workouts
+    // ----------------------
     const exercises = [...new Set(workouts.map(w => w.exercise))]; // unique exercises
 
+    // ----------------------
     // Create a dataset for each exercise
+    // Each dataset is a separate line in the chart
+    // ----------------------
     const datasets = exercises.map(exercise => {
-        const exerciseWorkouts = workouts.filter(w => w.exercise === exercise).sort((a,b)=> new Date(a.date) - new Date(b.date));
+        // Filter workouts for this exercise and sort by date
+        const exerciseWorkouts = workouts
+            .filter(w => w.exercise === exercise)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Map each workout to {x: date, y: weight} for Chart.js
+        const data = exerciseWorkouts.map(w => ({
+            x: new Date(w.date), // convert string to Date
+            y: w.weight,
+            isPR: w.isPR
+        }));
+
         return {
-            label: exercise,
-            data: exerciseWorkouts.map(w => ({ x: w.date, y: w.weight })),
-            borderColor: getExerciseColor(exercise),
-            backgroundColor: 'rgba(0,0,0,0)',
+            label: exercise, // line label
+            data, // points for this exercise
+            borderColor: getExerciseColor(exercise), // consistent color per exercise
+            backgroundColor: 'rgba(0,0,0,0)', // no fill under line
             tension: 0.3, // smooth line
-            pointRadius: 6,
-            pointBackgroundColor: exerciseWorkouts.map(w => w.isPR ? '#076028ff' : getExerciseColor(exercise)) // PR points in green
+            pointRadius: 6, // circle size
+            // Color PR points green, others use exercise color
+            pointBackgroundColor: data.map(d => d.isPR ? '#076028ff' : getExerciseColor(exercise))
         };
     });
 
-    const labels = [...new Set(workouts.map(w => w.date))].sort(); // unique dates
-
-    // Destroy previous chart instance if exists to avoid overlaying
+    // ----------------------
+    // Destroy previous chart instance if it exists
+    // ----------------------
     if (chart) chart.destroy();
 
+    // ----------------------
     // Create new Chart.js instance
+    // ----------------------
     chart = new Chart(ctx, {
-        type: 'line',
-        data: { datasets },
+        type: 'line', // line chart
+        data: { datasets }, // datasets created above
         options: {
-            responsive: true, // allows chart to resize
-            maintainAspectRatio: false, // lets CSS aspect-ratio control height
-            parsing: { xAxisKey: 'x', yAxisKey: 'y' }, // for x/y objects
+            responsive: true, // chart resizes automatically
+            maintainAspectRatio: false, // height controlled by CSS
+            parsing: { xAxisKey: 'x', yAxisKey: 'y' }, // parse x/y objects
             plugins: {
                 tooltip: {
                     callbacks: {
+                        // Customize tooltip text
                         label: (context) => {
-                            const exName = context.dataset.label;
-                            const w = workouts.find(w => w.exercise === exName && w.date === context.parsed.x);
-                            if (!w) return '';
-                            return w.isPR ? `${w.weight} lbs 🚀 PR` : `${w.weight} lbs`;
+                            const d = context.raw; // get {x, y, isPR}
+                            return d.isPR ? `${d.y} lbs 🚀 PR` : `${d.y} lbs`;
                         }
                     }
                 }
             },
-            scales: { 
-                y: { beginAtZero: false }, // start Y axis at minimum weight
-                x: { type: 'time', time: { unit: 'day' } } // show dates on X-axis
+            scales: {
+                x: { type: 'time', time: { unit: 'day' } }, // X-axis is date
+                y: { beginAtZero: false } // start Y-axis at minimum weight
             }
         }
     });
