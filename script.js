@@ -11,11 +11,12 @@ let chart; // Chart.js instance
 // ----------------------
 // Use sample workouts for testing chart
 // ----------------------
-let workouts = [
+let workouts = JSON.parse(localStorage.getItem('workouts')) || [
     { date: "2026-01-05", exercise: "Bench Press", sets: 3, reps: 8, weight: 150, isPR: false },
     { date: "2026-01-06", exercise: "Bench Press", sets: 3, reps: 8, weight: 155, isPR: true },
     { date: "2026-01-05", exercise: "Squat", sets: 4, reps: 6, weight: 200, isPR: false }
 ];
+
 let editIndex = null; // keeps track of which workout is being edited
 
 // ----------------------
